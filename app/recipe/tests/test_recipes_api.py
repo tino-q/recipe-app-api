@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
@@ -170,10 +172,40 @@ class PrivateRecipesApiTests(TestCase):
         self.assertIn(ingredient1, ingredients)
         self.assertIn(ingredient2, ingredients)
 
-    # def test_create_tag_invalid(self):
-    #     """Test creating tag with invalid payload"""
+    def test_partial_update_recipe(self):
+        """Test updating recipe with patch"""
+        recipe = sample_recipe(user=self.user)
+        recipe.tags.add(sample_tag(user=self.user))
+        new_tag = sample_tag(user=self.user, name='Curry')
 
-    #     payload = {'name': ''}
-    #     res = self.client.post(TAGS_URL, payload)
+        payload = {
+            'title': 'new title',
+            'tags': [new_tag.id]
+        }
 
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.client.patch(detail_url(recipe.id), payload)
+
+        recipe.refresh_from_db()
+        self.assertEquals(recipe.title, payload['title'])
+        tags = recipe.tags.all()
+        self.assertEqual(len(tags), 1)
+        self.assertIn(new_tag, tags)
+
+    def test_full_update_recipe(self):
+        """Test updating a recipe with put"""
+        recipe = sample_recipe(user=self.user)
+        recipe.tags.add(sample_tag(user=self.user))
+        payload = {
+            'title': 'new title',
+            'time_minutes': 30,
+            'price': Decimal('30.59')
+        }
+        self.client.put(detail_url(recipe.id), payload)
+
+        recipe.refresh_from_db()
+        self.assertEqual(recipe.title, payload['title'])
+        self.assertEqual(recipe.time_minutes, payload['time_minutes'])
+        self.assertEqual(recipe.price, payload['price'])
+
+        tags = recipe.tags.all()
+        self.assertEqual(len(tags), 0)
