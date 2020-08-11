@@ -221,6 +221,17 @@ class PrivateRecipesApiTests(TestCase):
         tags = recipe.tags.all()
         self.assertEqual(len(tags), 0)
 
+    def test_deleting_recipe(self):
+        """Test deleting a recipe"""
+        recipe = sample_recipe(user=self.user, title='Some recipe')
+
+        res = self.client.delete(detail_url(recipe.id))
+
+        exists = Recipe.objects.filter(id=recipe.id).exists()
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(exists, False)
+
 
 class RecipeImageUploadTests(TestCase):
     def setUp(self):
