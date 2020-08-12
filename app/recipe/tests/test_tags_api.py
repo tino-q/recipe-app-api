@@ -30,6 +30,7 @@ class PrivateTagsApiTests(TestCase):
     """Test the private tag api"""
 
     def setUp(self):
+        super().setUp()
         self.user = get_user_model().objects.create_user(
             'test@email.com',
             'randompass'

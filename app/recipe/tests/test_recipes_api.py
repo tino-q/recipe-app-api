@@ -57,6 +57,7 @@ class PublicRecipesApiTests(TestCase):
     """Test the public recipe api"""
 
     def setUp(self):
+        super().setUp()
         self.client = APIClient()
 
     def test_login_required(self):

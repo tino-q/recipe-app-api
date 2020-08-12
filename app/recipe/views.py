@@ -22,7 +22,7 @@ class BaseRecipeAttrViewSet(viewsets.GenericViewSet,
             int(self.request.query_params.get('assigned_only', 0))
         )
         queryset = self.queryset
-        if (assigned_only):
+        if assigned_only:
             queryset = queryset.filter(recipe__isnull=False)
 
         return queryset.filter(

@@ -29,7 +29,6 @@ class PublicUsersApiTests(TestCase):
         }
 
         res = self.client.post(CREATE_USER_URL, payload)
-
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         user = get_user_model().objects.get(**res.data)
         self.assertTrue(user.check_password(payload['password']))
@@ -44,6 +43,27 @@ class PublicUsersApiTests(TestCase):
         }
 
         create_user(**payload)
+        res = self.client.post(CREATE_USER_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_blank_email(self):
+        """Test creating user that already exists"""
+        payload = {
+            'email': '',
+            'name': 'testpass',
+            'password': 'password123'
+        }
+
+        res = self.client.post(CREATE_USER_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_without_email(self):
+        """Test creating user that already exists"""
+        payload = {
+            'name': 'testpass',
+            'password': 'password123'
+        }
+
         res = self.client.post(CREATE_USER_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -116,6 +136,7 @@ class PrivateUserApiTests(TestCase):
     """Test api requests that require authentication"""
 
     def setUp(self):
+        super().setUp()
         self.user = create_user(
             email='some@email.com',
             password='password123',
